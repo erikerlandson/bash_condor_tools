@@ -1,0 +1,91 @@
+# bash_condor_tools:  convenience widgets for filtering output of condor tools
+#
+# Copyright (c) 2010 Erik Erlandson
+#
+# Author:  Erik Erlandson <erikerlandson@yahoo.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+hist() {
+    sort | uniq -c | awk '{ print $0; t += $1 } END { printf("%7d total\n",t) }'
+}
+
+
+bctargs() {
+    local cc
+    local vv
+    local ncc=0
+    local nvv=0
+    local ic
+    local a
+    local j
+    for a in "$@"; do
+        if [ "$a" = "-c" ]; then
+            ic="y"
+        elif [ -z "$ic" ]; then
+            vv[$nvv]="$a"
+            let nvv=$nvv+1
+        else
+            cc[$ncc]="$a"
+            let ncc=$ncc+1
+        fi
+    done
+    local fmt=""
+    if [ $nvv -gt 1 ]; then
+        fmt="-format \"%s\" '${vv[0]}'"
+        if [ $nvv -gt 2 ]; then
+            for j in $(seq 1 $(($nvv-2))); do
+                fmt="$fmt -format \" | %s\" '${vv[$j]}'"
+            done
+        fi
+        fmt="$fmt -format \" | %s\\n\" '${vv[$nvv-1]}'"
+    else
+        fmt="-format \"%s\\n\" '${vv[0]}'"
+    fi
+    local expr="True"
+    for a in "${cc[@]}"; do  expr="$expr && ($a)"; done
+    echo "$fmt -constraint '$expr'" | sed 's/_SlotType_/ifThenElse(PartitionableSlot =?= TRUE, "P", ifThenElse(DynamicSlot =?= TRUE, "D", "X"))/g'
+}
+
+
+qvdump() {
+    local t=`bctargs "$@"`
+    eval "condor_q $t"
+}
+
+qvsort() {
+    local t=`bctargs "$@"`
+    eval "condor_q $t | sort"
+}
+
+qvhist() {
+    local t=`bctargs "$@"`
+    eval "condor_q $t | hist"
+}
+
+svdump() {
+    local t=`bctargs "$@"`
+    eval "condor_status $t"
+}
+
+svsort() {
+    local t=`bctargs "$@"`
+    eval "condor_status $t | sort"
+}
+
+svhist() {
+    local t=`bctargs "$@"`
+    eval "condor_status $t | hist"
+}
