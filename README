@@ -1,1 +1,88 @@
-Some bash command line widgets for filtering condor tool output.
+bash_condor_tools is a small suite of bash command line widgets for filtering condor tool output.   
+
+This package is published under the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+
+The filters are written as bash functions.  To use them simply source the included file "bash_condor_tools":
+
+% . bash_condor_tools
+
+Alternatively, you can of course source this file in your .bashrc or .bash_profile files.
+
+The following commands are provided:
+
+*) hist (pipe command that histograms whatever you give it on stdin)
+*) qvhist Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svhist Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) qvsort Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svsort Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) qvdump Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svdump Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+
+qvhist runs condor_q using -format "%s" for whatever expression(s) you give it, and then passes the output through hist to form a histogram.  Typically an expression will be a single classad variable, but can be any classad expression.
+
+# get a histogram of clusters
+# equivalent to condor_q -format "%s\n" ClusterId | hist
+% qvhist ClusterId
+      3 77
+      5 78
+      8 total
+
+If two or more expressions are given, a histogram is made of the tuples of values, separated by the '|' character:
+
+% qvhist ClusterId JobStatus
+      5 76 | 2
+      3 77 | 1
+      2 77 | 2
+     10 total
+
+Constraint option may also be used, at the end:
+
+% qvhist JobStatus -c 'ClusterId == 79'
+     10 1
+      3 2
+     13 total
+
+The qvdump command works in the same way as qvhist, except all tuple output is dumped, with no histogramming:
+
+% qvdump ClusterId JobStatus
+80 | 2
+80 | 2
+80 | 2
+80 | 2
+80 | 2
+81 | 2
+81 | 2
+81 | 1
+81 | 1
+81 | 1
+
+qvsort is equivalent to qvdump, passed thru unix sort.
+
+svhist works like qvhist, except that condor_status is run instead of condor_q:
+
+# histogram of slot type, state and activity.  "P" is partitionable slot, "D" is dynamic slot, "X" is regular slot:
+% svhist _SlotType_ State Activity
+      3 D | Claimed | Busy
+      3 P | Unclaimed | Idle
+      4 X | Claimed | Busy
+     10 total
+
+The _SlotType_ macro is expanded by bash_condor_tools into the somewhat awkward expression:  (ifThenElse(PartitionableSlot =?= TRUE, "P", ifThenElse(DynamicSlot =?= TRUE, "D", "X")))
+
+As with qvhist, svhist can also accept constraint expressions:
+% svhist _SlotType_ State Activity -c 'Machine == "rorschach.localdomain"'
+      3 P | Unclaimed | Idle
+      4 X | Unclaimed | Idle
+      7 total
+
+The svdump command works like svhist, except all tuples are output with no histogramming.  The svsort command passes all tuples thru unix sort (no histogramming):
+
+% svsort _SlotType_ State Activity 
+P | Unclaimed | Idle
+P | Unclaimed | Idle
+P | Unclaimed | Idle
+X | Unclaimed | Idle
+X | Unclaimed | Idle
+X | Unclaimed | Idle
+X | Unclaimed | Idle
