@@ -56,7 +56,7 @@ bctargs() {
     fi
     local expr="True"
     if [ -n "${cc[@]}" ]; then for a in "${cc[@]}"; do  expr="$expr && ($a)"; done; fi
-    echo "$fmt -constraint '$expr'" | sed 's/_SlotType_/ifThenElse(PartitionableSlot =?= TRUE, "P", ifThenElse(DynamicSlot =?= TRUE, "D", "X"))/g'
+    echo "$fmt -constraint '$expr'" | sed 's/_SlotType_/ifThenElse(PartitionableSlot =?= TRUE, "P", ifThenElse(DynamicSlot =?= TRUE, "D", "S"))/g'
 }
 
 
