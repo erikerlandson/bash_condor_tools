@@ -18,10 +18,13 @@
 
 
 
-hist() {
-    sort | uniq -c | awk '{ print $0; t += $1 } END { printf("%7d total\n",t) }'
+_hist_cmd() {
+    echo 'sort | uniq -c | awk '"'"'{ print $0; t += $1 } END { printf("%7d total\n",t) }'"'"
 }
 
+hist() {
+    eval `_hist_cmd`
+}
 
 bctargs() {
     local cc
@@ -61,31 +64,49 @@ bctargs() {
 
 
 qvdump() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_q $t"
+    local cmd="condor_q $t"
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
 
 qvsort() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_q $t | sort"
+    local cmd="condor_q $t | sort"
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
 
 qvhist() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_q $t | hist"
+    local cmd="condor_q $t | "`_hist_cmd`
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
 
 svdump() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_status $t"
+    local cmd="condor_status $t"
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
 
 svsort() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_status $t | sort"
+    local cmd="condor_status $t | sort"
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
 
 svhist() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
     local t=`bctargs "$@"`
-    eval "condor_status $t | hist"
+    local cmd="condor_status $t | "`_hist_cmd`
+    if [ "$pcmd" != "" ]; then echo $cmd ; fi
+    eval $cmd
 }
