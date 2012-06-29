@@ -12,12 +12,19 @@ Alternatively, you can of course source this file in your .bashrc or .bash_profi
 The following commands are provided:
 
 *) hist (pipe command that histograms whatever you give it on stdin)
-*) qvhist Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
-*) svhist Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
-*) qvsort Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
-*) svsort Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
-*) qvdump Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
-*) svdump Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) cchist [ -cmd ] Command Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) ccsort [ -cmd ] Command Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) ccdump [ -cmd ] Command Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) qvhist [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svhist [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) qvsort [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svsort [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) qvdump [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+*) svdump [ -cmd ] Expr1 [ Expr2 ...] [ -c ConstraintExpr ]
+
+In all the above, the option -cmd causes the command to output the full unix command that would be executed.  So for example this option can be used to provide a command usable by people who do not use bash_condor_tools.
+
+For cchist, ccsort and ccdump, "Command" refers to a condor command that accepts '-format <fmt> <attr>' options, e.g. condor_status, condor_q, condor_history.
 
 qvhist runs condor_q using -format "%s" for whatever expression(s) you give it, and then passes the output through hist to form a histogram.  Typically an expression will be a single classad variable, but can be any classad expression.
 
