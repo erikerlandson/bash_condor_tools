@@ -59,54 +59,54 @@ bctargs() {
     fi
     local expr="True"
     if [ -n "${cc[@]}" ]; then for a in "${cc[@]}"; do  expr="$expr && ($a)"; done; fi
+    # note: the following 'sed' substitution for _SlotType_ is obsoleted by the new SlotType attribute
     echo "$fmt -constraint '$expr'" | sed 's/_SlotType_/ifThenElse(PartitionableSlot =?= TRUE, "P", ifThenElse(DynamicSlot =?= TRUE, "D", "S"))/g'
 }
 
+ccdump() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
+    local cc="$1" ; shift
+    local cmd="$cc "`bctargs "$@"`
+    if [ "$pcmd" != "" ]; then echo $cmd ; return ; fi
+    eval $cmd
+}
+
+ccsort() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
+    local cc="$1" ; shift
+    local cmd="$cc "`bctargs "$@"`" | sort"
+    if [ "$pcmd" != "" ]; then echo $cmd ; return ; fi
+    eval $cmd
+}
+
+cchist() {
+    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
+    local cc="$1" ; shift
+    local cmd="$cc "`bctargs "$@"`" | "`_hist_cmd`
+    if [ "$pcmd" != "" ]; then echo $cmd ; return ; fi
+    eval $cmd
+}
 
 qvdump() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_q $t"
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; ccdump -cmd condor_q "$@" ; else ccdump condor_q "$@" ; fi 
 }
 
 qvsort() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_q $t | sort"
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; ccsort -cmd condor_q "$@" ; else ccsort condor_q "$@" ; fi 
 }
 
 qvhist() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_q $t | "`_hist_cmd`
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; cchist -cmd condor_q "$@" ; else cchist condor_q "$@" ; fi 
 }
 
 svdump() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_status $t"
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; ccdump -cmd condor_status "$@" ; else ccdump condor_status "$@" ; fi 
 }
 
 svsort() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_status $t | sort"
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; ccsort -cmd condor_status "$@" ; else ccsort condor_status "$@" ; fi 
 }
 
 svhist() {
-    if [ "$1" = "-cmd" ]; then shift ; local pcmd="1" ; fi
-    local t=`bctargs "$@"`
-    local cmd="condor_status $t | "`_hist_cmd`
-    if [ "$pcmd" != "" ]; then echo $cmd ; fi
-    eval $cmd
+    if [ "$1" = "-cmd" ]; then shift ; cchist -cmd condor_status "$@" ; else cchist condor_status "$@" ; fi 
 }
