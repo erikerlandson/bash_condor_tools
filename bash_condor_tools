@@ -47,15 +47,15 @@ bctargs() {
     done
     local fmt=""
     if [ $nvv -gt 1 ]; then
-        fmt="-format \"%s\" 'ifThenElse(${vv[0]} =!= undefined, ${vv[0]}, \"undefined\")'"
+        fmt="-format \"%s\" 'ifThenElse(${vv[0]} isnt undefined, string(${vv[0]}), \"undefined\")'"
         if [ $nvv -gt 2 ]; then
             for j in $(seq 1 $(($nvv-2))); do
-                fmt="$fmt -format \" | %s\" 'ifThenElse(${vv[$j]} =!= undefined, ${vv[$j]}, \"undefined\")'"
+                fmt="$fmt -format \" | %s\" 'ifThenElse(${vv[$j]} isnt undefined, string(${vv[$j]}), \"undefined\")'"
             done
         fi
-        fmt="$fmt -format \" | %s\\n\" 'ifThenElse(${vv[$nvv-1]} =!= undefined, ${vv[$nvv-1]}, \"undefined\")'"
+        fmt="$fmt -format \" | %s\\n\" 'ifThenElse(${vv[$nvv-1]} isnt undefined, string(${vv[$nvv-1]}), \"undefined\")'"
     else
-        fmt="-format \"%s\\n\" 'ifThenElse(${vv[0]} =!= undefined, ${vv[0]}, \"undefined\")'"
+        fmt="-format \"%s\\n\" 'ifThenElse(${vv[0]} isnt undefined, string(${vv[0]}), \"undefined\")'"
     fi
     local expr="True"
     if [ -n "${cc[@]}" ]; then for a in "${cc[@]}"; do  expr="$expr && ($a)"; done; fi
